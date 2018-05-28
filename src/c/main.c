@@ -55,7 +55,7 @@ static TextLayer *s_step_layer;
 
 static int s_hours, s_minutes, s_weekday, s_day, s_loop, s_countdown;
 
-//link weather icons font symbols to weather conditions outputs from api
+//link weather icons font symbols to weather conditions outputs from api, many thanks to relynr's Weatherstep watchface, at https://github.com/redlynr/Weatherstep
 static char* weather_conditions[] = {
     "\U0000F07B", // 'unknown': 0,
     "\U0000F00D", // 'clear': 1,
