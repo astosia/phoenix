@@ -65,12 +65,6 @@
         "resources": {
             "media": [
                 {
-                    "file": "data/DinConffont",
-                    "name": "DIN",
-                    "targetPlatforms": null,
-                    "type": "raw"
-                },
-                {
                     "characterRegex": "[z]",
                     "file": "fonts/Dripicons",
                     "name": "FONT_DRIPICONS_16",
@@ -90,32 +84,8 @@
                     "type": "font"
                 },
                 {
-                    "file": "images/Sunset2",
-                    "name": "IMAGE_SUNSET_ICON2",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/sunset",
-                    "name": "IMAGE_SUNSET_ICON",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/bt-icon",
-                    "name": "IMAGE_BT_ICON",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
                     "file": "data/STEELFISH BIG",
                     "name": "FONT_STEELFISH",
-                    "targetPlatforms": null,
-                    "type": "raw"
-                },
-                {
-                    "file": "data/Open sans ffont",
-                    "name": "OPENSANSCON_FFONT",
                     "targetPlatforms": null,
                     "type": "raw"
                 }
