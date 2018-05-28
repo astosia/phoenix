@@ -2,6 +2,9 @@
 #include "effect_layer.h"
 #include "effects.h"  
 
+// Taken from https://github.com/ygalanter/pebble-effect-layer/blob/master/src/c/effect_layer.c 
+//  Only included for rotate effect, which isn't included in this version (used in phoenix 90 and 270). *********
+
 // Find the offset of parent layer pointer  
 static uint8_t find_parent_offset() {
   Layer* p = layer_create(PBL_IF_ROUND_ELSE(

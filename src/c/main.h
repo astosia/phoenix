@@ -4,27 +4,21 @@
 // A structure containing our settings
 typedef struct ClaySettings {
   GColor Back1Color;
-//  GColor Back2Color;
-//  GColor FrameColor;
   GColor Text1Color;
   GColor Text2Color;
   GColor Text3Color;
   GColor Text4Color;
   GColor Text5Color;
-  /////////////////
   GColor HourColor;
   GColor MinColor;
   GColor HourColorN;
   GColor MinColorN;
-  ////////////////
   GColor Back1ColorN;
- // GColor Back2ColorN;
- // GColor FrameColorN;
   GColor Text1ColorN;
   GColor Text2ColorN; 
-    GColor Text3ColorN;
+  GColor Text3ColorN;
   GColor Text4ColorN;
-   GColor Text5ColorN;
+  GColor Text5ColorN;
   int WeatherUnit;
   char* WindUnit;
   int UpSlider;

@@ -1,3 +1,5 @@
+//Taken from source code of 7egment https://github.com/dieghernan/7egment/blob/master/src/c/weekday.c
+
 #include <pebble.h>
 #include "weekday.h"
 #include "string.h"

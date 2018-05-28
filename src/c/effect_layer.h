@@ -2,6 +2,10 @@
 #include <pebble.h>  
 #include "effects.h"
   
+// Taken from https://github.com/ygalanter/pebble-effect-layer/blob/master/src/c/effect_layer.h 
+//  Only included for rotate effect, which isn't included in this version (used in phoenix 90 and 270). *********
+
+
 //number of supported effects on a single effect_layer (must be <= 255)
 #define MAX_EFFECTS 4
   

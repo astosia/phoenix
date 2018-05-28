@@ -3,7 +3,8 @@
 #include "math.h"
   
   
-// { ********* Graphics utility functions (probablu should be seaparated into anothe file?) *********
+// Taken from https://github.com/ygalanter/pebble-effect-layer/blob/master/src/c/effects.c 
+//  Only included for rotate effect, which isn't included in this version. *********
   
   
 // set pixel color at given coordinates 
