@@ -12,6 +12,25 @@ module.exports = [
         "defaultValue": "Theme settings"
       },
       {
+        "type": "toggle",
+        "messageKey": "HealthOff",
+        "label": "Switch off Steps",
+        "defaultValue": true,
+        "capabilities":["HEALTH"]
+      },
+      {
+        "type": "toggle",
+        "messageKey": "AddZero12h",
+        "label": "Add leading zero to 12h time",
+        "defaultValue": false
+      },
+      {
+        "type": "toggle",
+        "messageKey": "RemoveZero24h",
+        "label": "Remove leading zero from 24h time",
+        "defaultValue": false
+      },
+      {
         "type": "color",
         "messageKey": "Back1Color",
         "defaultValue": "0x000000",
@@ -28,7 +47,7 @@ module.exports = [
         "messageKey": "MinColor",
         "defaultValue": "0xFFFFAA",
         "label": "Minute Text"
-      }, 
+      },
       {
         "type": "color",
         "messageKey": "Text1Color",
@@ -40,19 +59,26 @@ module.exports = [
         "messageKey": "Text5Color",
         "defaultValue": "0xFFFFFF",
         "label": "Wind"
-      }, 
+      },
+      {
+        "type": "color",
+        "messageKey": "Text7Color",
+        "defaultValue": "0xFFFFFF",
+        "label": "Steps Colour",
+        "capabilities":["HEALTH"]
+      },
       {
         "type": "color",
         "messageKey": "Text2Color",
         "defaultValue": "0xFFFFFF",
         "label": "Complications Left"
-      }, 
+      },
        {
         "type": "color",
         "messageKey": "Text3Color",
         "defaultValue": "0xFFFFFF",
         "label": "Complications Right"
-      }, 
+      },
       {
         "type":"color",
         "messageKey":"Text4Color",
@@ -70,7 +96,7 @@ module.exports = [
            "type": "toggle",
            "messageKey": "NightTheme",
            "label": "Activate Night Theme",
-           "defaultValue": false,        
+           "defaultValue": false,
          },
          {
            "type": "color",
@@ -89,19 +115,19 @@ module.exports = [
         "messageKey": "MinColorN",
         "defaultValue": "0x000000",
         "label": "Minute Text"
-      }, 
+      },
          {
            "type": "color",
            "messageKey": "Text1ColorN",
            "defaultValue": "0x000000",
            "label": "Weather"
-         }, 
+         },
        {
            "type": "color",
            "messageKey": "Text5ColorN",
            "defaultValue": "0x000000",
            "label": "Wind"
-         }, 
+         },
          {
            "type": "color",
            "messageKey": "Text2ColorN",
@@ -113,7 +139,14 @@ module.exports = [
         "messageKey": "Text3ColorN",
         "defaultValue": "0x000000",
         "label": "Complications Right"
-      }, 
+        },
+        {
+          "type": "color",
+          "messageKey": "Text7ColorN",
+          "defaultValue": "0x000000",
+          "label": "Steps Colour",
+          "capabilities":["HEALTH"]
+        },
          {
            "type":"color",
            "messageKey":"Text4ColorN",
@@ -130,7 +163,7 @@ module.exports = [
           {
             "type": "heading",
             "defaultValue": "Weather settings"
-          },     
+          },
           {
             "type": "toggle",
             "messageKey": "WeatherUnit",
@@ -172,15 +205,30 @@ module.exports = [
                 "value": "owm"
               },
               {
-                "label": "WeatherUnderground",
-                "value": "wu"
-              },
-              {
                 "label": "DarkSky",
                 "value": "ds"
               }
             ]
           },
+          {
+             "type": "input",
+             "messageKey": "Lat",
+             "defaultValue": "",
+             "label": "Manual Location - Latitude",
+             "attributes": {
+             "placeholder": "eg: 51.4962"
+             }
+           },
+           {
+              "type": "input",
+              "messageKey": "Long",
+              "defaultValue": "",
+              "label": "Manual Location - Longitude",
+              "description": "Leave both blank to use GPS location for sunrise & sunset times and weather. You can use <a href =https://www.google.com/maps>Google Maps</a> or <a href =https://www.openstreetmap.org/>OpenStreetMap</a> to find latitude & longitude.",
+              "attributes": {
+                "placeholder": "eg: -0.0989"
+              }
+            },
           {
             "type": "input",
             "messageKey": "APIKEY_User",
@@ -228,7 +276,7 @@ module.exports = [
           },
           {
           "type": "heading",
-          "defaultValue": "version v2.0",
+          "defaultValue": "version v2.5",
           "size":6
           },
           {

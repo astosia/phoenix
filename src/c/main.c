@@ -20,18 +20,20 @@ static GFont
   FontWind;
 
 char
-  tempstring[44], 
-  condstring[44], 
-  citistring[44], 
+  tempstring[44],
+  condstring[44],
+  citistring[44],
   windstring[44],
-  windavestring[44], 
-  sunsetstring[44], 
-  sunrisestring[44], 
-  iconnowstring[8], 
-  iconforestring[8], 
-  windiconnowstring[8], 
-  windiconavestring[8], 
-  templowstring[44], 
+  windavestring[44],
+  sunsetstring[44],
+  sunrisestring[44],
+  sunsetstring12[44],
+  sunrisestring12[44],
+  iconnowstring[8],
+  iconforestring[8],
+  windiconnowstring[8],
+  windiconavestring[8],
+  templowstring[44],
   temphistring[44];
 
 FFont* time_font;
@@ -41,8 +43,8 @@ static Window * s_window;
 //EffectLayer* effect_layer;
 //EffectLayer* effect_layer_2; //rotation effect layer, not used in this version
 
-GColor color_loser;
-GColor color_winner;
+//GColor color_loser;
+//GColor color_winner;
 
 static Layer * s_canvas_to_be_rotated;
 static Layer * s_canvas;
@@ -133,6 +135,7 @@ static void prv_default_settings(){
   settings.Text3Color = GColorWhite;
   settings.Text4Color = GColorWhite;
   settings.Text5Color = GColorWhite;
+  settings.Text7Color = GColorWhite;
   settings.HourColor = GColorWhite;
   settings.MinColor = GColorWhite;
   settings.HourColorN = GColorBlack;
@@ -140,13 +143,17 @@ static void prv_default_settings(){
   settings.Back1ColorN = GColorWhite;
   settings.Text1ColorN = GColorBlack;
   settings.Text2ColorN = GColorBlack;
-  settings.Text3ColorN = GColorBlack; 
+  settings.Text3ColorN = GColorBlack;
   settings.Text4ColorN = GColorBlack;
   settings.Text5ColorN = GColorBlack;
+  settings.Text7ColorN = GColorBlack;
   settings.WeatherUnit = 0;
   settings.WindUnit = 0;
   settings.UpSlider = 30;
   settings.NightTheme = true;
+  settings.HealthOff = true;
+  settings.AddZero12h = false;
+  settings.RemoveZero24h = false;
 }
 int HourSunrise=700;
 int HourSunset=2200;
@@ -159,7 +166,7 @@ bool IsNightNow=false;
 static GColor ColorSelect(GColor ColorDay, GColor ColorNight){
   if (settings.NightTheme && IsNightNow && GPSOn ){
     return ColorNight;
-  } 
+  }
   else{
     return ColorDay;
   }
@@ -238,14 +245,15 @@ static void get_step_average() {
 ////display step count
 static void display_step_count() {
   int thousands = s_step_count / 1000;
-  int hundreds = s_step_count % 1000;
+  int hundreds = (s_step_count % 1000)/100;
+//  int hundreds2 = (s_step_count % 1000);
   static char s_emoji[5];
 
   if(s_step_count >= s_step_average) {
-    text_layer_set_text_color(s_step_layer, PBL_IF_BW_ELSE(ColorSelect(settings.Text1Color, settings.Text1ColorN), color_winner));
+    text_layer_set_text_color(s_step_layer, ColorSelect(settings.Text7Color, settings.Text7ColorN));//, color_winner));
     snprintf(s_emoji, sizeof(s_emoji), "\U0001F600");
   } else {
-    text_layer_set_text_color(s_step_layer, PBL_IF_BW_ELSE(ColorSelect(settings.Text1Color, settings.Text1ColorN), color_loser));
+    text_layer_set_text_color(s_step_layer, ColorSelect(settings.Text7Color, settings.Text7ColorN));//, color_loser));
     snprintf(s_emoji, sizeof(s_emoji), "\U0001F61E");
   }
 
@@ -305,7 +313,7 @@ void update_hour_area_layer(Layer *l, GContext* ctx7) {
     #ifdef PBL_COLOR
       fctx_enable_aa(true);
     #endif
-  
+
 
   // if it's a round watch, STUFF CHANGES
   #ifdef PBL_ROUND
@@ -323,7 +331,7 @@ void update_hour_area_layer(Layer *l, GContext* ctx7) {
   fctx_set_text_em_height(&fctx, time_font, font_size);
 
   ////show time based on watch settings, as 12hour or 24hour
-  int hourdraw;
+  /*int hourdraw;
   char hournow[8];
   if (clock_is_24h_style()){
     hourdraw=s_hours;
@@ -333,18 +341,30 @@ void update_hour_area_layer(Layer *l, GContext* ctx7) {
     if (s_hours==0 || s_hours==12){
       hourdraw=12;
     }
-    else hourdraw=s_hours%12;    
+    else hourdraw=s_hours%12;
   snprintf(hournow, sizeof(hournow), "%d", hourdraw);
  // hourdraw = hourdraw1+(('0'==hourdraw1[0])?1:0));
+}*/
+  time_t temp = time(NULL);
+  struct tm *time_now = localtime(&temp);
+
+  char hourdraw[8];
+  if(clock_is_24h_style() && settings.RemoveZero24h){
+      strftime(hourdraw, sizeof(hourdraw),"%k",time_now);
+  } else if (clock_is_24h_style() && !settings.RemoveZero24h) {
+      strftime(hourdraw, sizeof(hourdraw),"%H",time_now);
+  } else if (settings.AddZero12h) {
+    strftime(hourdraw, sizeof(hourdraw),"%I",time_now);
+  } else {
+    strftime(hourdraw, sizeof(hourdraw),"%l",time_now);
   }
-  
 // draw hours
   time_pos.x = INT_TO_FIXED(bounds.size.w + h_adjust);
   time_pos.y = INT_TO_FIXED(bounds.size.h / 2 + v_adjust);
-  
+
 //  fctx_set_pivot(&fctx, time_pos);
   fctx_set_offset(&fctx, time_pos);
-  fctx_draw_string(&fctx, hournow, time_font, GTextAlignmentRight, FTextAnchorMiddle);
+  fctx_draw_string(&fctx, hourdraw, time_font, GTextAlignmentRight, FTextAnchorMiddle);
   fctx_end_fill(&fctx);
 
   fctx_deinit_context(&fctx);
@@ -381,7 +401,7 @@ void update_minute_area_layer(Layer *a, GContext* ctx8) {
     #ifdef PBL_COLOR
       fctx_enable_aa(true);
     #endif
-  
+
 
   // if it's a round watch, STUFF CHANGES
   #ifdef PBL_ROUND
@@ -398,16 +418,21 @@ void update_minute_area_layer(Layer *a, GContext* ctx8) {
   fctx_begin_fill(&fctx1);
   fctx_set_text_em_height(&fctx1, time_font, font_size2);
 
-  int mindraw;
+  /*int mindraw;
   mindraw = s_minutes;
   char minnow[8];
-  snprintf(minnow, sizeof(minnow), "%02d", mindraw);
-  
+  snprintf(minnow, sizeof(minnow), "%02d", mindraw);*/
+  time_t temp = time(NULL);
+  struct tm *time_now = localtime(&temp);
+
+  char mindraw[8];
+  strftime(mindraw, sizeof(mindraw),"%M",time_now);
+
   //draw minutes
   time_pos2.x = INT_TO_FIXED(PBL_IF_ROUND_ELSE(104,86) + h_adjust2);
   time_pos2.y = INT_TO_FIXED(bounds.size.h / 2 + v_adjust2);
   fctx_set_offset(&fctx1, time_pos2);
-  fctx_draw_string(&fctx1, minnow, time_font, GTextAlignmentLeft, FTextAnchorMiddle);
+  fctx_draw_string(&fctx1, mindraw, time_font, GTextAlignmentLeft, FTextAnchorMiddle);
   fctx_end_fill(&fctx1);
 
   fctx_deinit_context(&fctx1);
@@ -417,57 +442,57 @@ void update_minute_area_layer(Layer *a, GContext* ctx8) {
 static void layer_update_proc_pre_rotate(Layer * layer1, GContext * ctx1){
   // Create Rects
   GRect bounds1 = layer_get_bounds(layer1);
-  
+
   GRect MediumBand =
     PBL_IF_ROUND_ELSE(
       GRect(0,0,180,180),
       GRect(0, 0, (bounds1.size.w), bounds1.size.h));
-  
-  GRect WindKtsNowRect =  
+
+  GRect WindKtsNowRect =
     (PBL_IF_ROUND_ELSE(
       (GRect(bounds1.size.w/2-10,2,20,20)),
       (GRect(bounds1.size.w/2-10,0,20,20))));
- 
-  GRect WindDirNowRect =  
+
+  GRect WindDirNowRect =
     (PBL_IF_ROUND_ELSE(
       (GRect(bounds1.size.w/2-10,20,20,20)),
       (GRect(bounds1.size.w/2-10,16,20,20))));
-  
-  GRect TempRect =  
+
+  GRect TempRect =
     (PBL_IF_ROUND_ELSE(
       (GRect(bounds1.size.w/2-15,34,30,20)),
       (GRect(bounds1.size.w/2-15,28,30,20))));
-  
+
   GRect IconNowRect =
     (PBL_IF_ROUND_ELSE(
        GRect(90-20, 56,40,40),
        GRect(72-20, 50, 40,40)));
-  
-  GRect CondRect =  
+
+  GRect CondRect =
     (PBL_IF_ROUND_ELSE(
       (GRect(bounds1.size.w/2-15,78,30,20)),
       (GRect(bounds1.size.w/2-15,72,30,20))));
-  
+
  GRect IconForeRect =
     (PBL_IF_ROUND_ELSE(
       GRect (90-20, 100,40,40),
       GRect(72-20, 94, 40,40)));
-  
+
  GRect TempLowRect =
     (PBL_IF_ROUND_ELSE(
       (GRect(bounds1.size.w/2-15,122,30,20)),
       (GRect(bounds1.size.w/2-15,116,30,20))));
-  
- GRect WindDirAveRect =  
+
+ GRect WindDirAveRect =
     (PBL_IF_ROUND_ELSE(
       (GRect(bounds1.size.w/2-10,142,20,20)),
       (GRect(bounds1.size.w/2-10,134,20,20))));
- 
- GRect WindKtsAveRect =  
+
+ GRect WindKtsAveRect =
     (PBL_IF_ROUND_ELSE(
       (GRect(bounds1.size.w/2-15,158,30,20)),
       (GRect(bounds1.size.w/2-15,148,30,20))));
-  
+
 char TempToDraw[20];
 char CondToDraw[20];
 char TempLowToDraw[20];
@@ -479,22 +504,22 @@ char WindDirAveToDraw[20];
 char WindKtsAveToDraw[20];
 
     snprintf(TempToDraw, sizeof(TempToDraw), "%s",tempstring);
-    snprintf(CondToDraw, sizeof(CondToDraw), "%s",temphistring); 
+    snprintf(CondToDraw, sizeof(CondToDraw), "%s",temphistring);
     snprintf(TempLowToDraw,sizeof(TempLowToDraw),"%s",templowstring);
     snprintf(IconNowToDraw, sizeof(IconNowToDraw),"%s",iconnowstring);
     snprintf(IconForeToDraw,sizeof(IconForeToDraw),"%s",iconforestring);
-  
+
     snprintf(WindDirNowToDraw,sizeof(IconForeToDraw),"%s",windiconnowstring);
     snprintf(WindKtsNowToDraw,sizeof(IconForeToDraw),"%s",windstring);
     snprintf(WindDirAveToDraw,sizeof(IconForeToDraw),"%s",windiconavestring);
     snprintf(WindKtsAveToDraw,sizeof(IconForeToDraw),"%s",windavestring);
-  
+
   //Build display, background colours
   graphics_context_set_fill_color(ctx1, ColorSelect(settings.Back1Color, settings.Back1ColorN));
   graphics_fill_rect(ctx1, bounds1, 0, GCornerNone);
   graphics_context_set_fill_color(ctx1, ColorSelect(settings.Back1Color, settings.Back1ColorN));
   graphics_fill_rect(ctx1, MediumBand,0,GCornerNone);
-  
+
   // draw the weather conditions and temperatures
   graphics_context_set_text_color(ctx1, ColorSelect(settings.Text1Color, settings.Text1ColorN));
   graphics_draw_text(ctx1, TempToDraw, FontWeather, TempRect, GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -502,7 +527,7 @@ char WindKtsAveToDraw[20];
   graphics_draw_text(ctx1, TempLowToDraw, FontWeather, TempLowRect, GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   graphics_draw_text (ctx1, IconNowToDraw,FontWeatherIcons,IconNowRect,GTextOverflowModeFill,GTextAlignmentCenter,NULL);
   graphics_draw_text(ctx1, IconForeToDraw,FontWeatherIcons,IconForeRect,GTextOverflowModeFill,GTextAlignmentCenter, NULL);
-  
+
   // draw the wind conditions and direction
   graphics_context_set_text_color(ctx1, ColorSelect(settings.Text5Color, settings.Text5ColorN));
   graphics_draw_text(ctx1, WindDirNowToDraw,FontWeatherIcons,WindDirNowRect,GTextOverflowModeFill,GTextAlignmentCenter, NULL);
@@ -517,27 +542,27 @@ static void layer_update_proc(Layer * layer, GContext * ctx){
   GRect bounds3 = layer_get_bounds(layer);
 
   //int offsetdate = PBL_IF_RECT_ELSE(12, 10);
-  GRect DateRect = 
+  GRect DateRect =
   //  (0, offsetdate, bounds3.size.w, bounds1.size.h/4);
     (PBL_IF_ROUND_ELSE(
         GRect((bounds3.size.w/2)+12, 122+10, 46, 20),
         GRect(96, bounds3.size.h-42, 46, 20)));
-   
-  GRect SunsetRect = 
+
+  GRect SunsetRect =
     (PBL_IF_ROUND_ELSE(
         GRect(0+18,122+10,bounds3.size.w/2-10-22,20),
         GRect(22, 126, bounds3.size.w/2,42)));
-    
+
  GRect CitiRect =
     (PBL_IF_ROUND_ELSE(
         GRect(18, 30, bounds3.size.w/2-14-18,20),
         GRect(0,bounds3.size.h-20, bounds3.size.w/2 -10, 20)));
-  
+
  GRect BatteryRect =
    (PBL_IF_ROUND_ELSE(
         GRect((bounds3.size.w/2)+12,142+8,bounds3.size.w,22),
         GRect((bounds3.size.w/2),bounds3.size.h - 20, bounds3.size.w/2, 20)));
-  
+
   //Date
   // Local language
   const char * sys_locale = i18n_get_system_locale();
@@ -547,7 +572,7 @@ static void layer_update_proc(Layer * layer, GContext * ctx){
   snprintf(convertday, sizeof(convertday), " %02d", s_day);
   // Concatenate date
   strcat(datenow, convertday);
-  
+
   //Battery
   int battery_level = battery_state_service_peek().charge_percent;
   char battperc[20];
@@ -559,93 +584,102 @@ static void layer_update_proc(Layer * layer, GContext * ctx){
     snprintf(ampm, sizeof(ampm), "24H");
   }
   else if (s_hours<12){
-    snprintf(ampm, sizeof(ampm), "AM");    
+    snprintf(ampm, sizeof(ampm), "AM");
   }
   else {
-    snprintf(ampm, sizeof(ampm), "PM"); 
+    snprintf(ampm, sizeof(ampm), "PM");
   }*/
- 
-//Location and Sunrise/sunset  
+
+//Location and Sunrise/sunset
   char LocToDraw[20];
   char SunsetToDraw[20];
 
   int nowthehouris = s_hours * 100 + s_minutes;
     snprintf(LocToDraw, sizeof(LocToDraw), "%s",citistring);
- 
+
   //draw sunset if daytime, sunrise if nighttime
-  if (HourSunrise <= nowthehouris && nowthehouris <= HourSunset){
-         snprintf(SunsetToDraw, sizeof(SunsetToDraw), "%s",sunsetstring); 
-    } 
-    else {
-      snprintf(SunsetToDraw, sizeof(SunsetToDraw), "%s",sunrisestring);
+  if (clock_is_24h_style()){
+    if (HourSunrise <= nowthehouris && nowthehouris <= HourSunset){
+    snprintf(SunsetToDraw, sizeof(SunsetToDraw), "%s",sunsetstring);
     }
+    else{
+    snprintf(SunsetToDraw, sizeof(SunsetToDraw), "%s",sunrisestring);
+    }
+  } else {
+    if (HourSunrise <= nowthehouris && nowthehouris <= HourSunset){
+    snprintf(SunsetToDraw, sizeof(SunsetToDraw), "%s",sunsetstring12);
+    }
+    else{
+    snprintf(SunsetToDraw, sizeof(SunsetToDraw), "%s",sunrisestring12);
+    }
+  }
 
-  
 
-  //draw sunrise sunset 
+
+  //draw sunrise sunset
   graphics_context_set_text_color(ctx, ColorSelect(settings.Text2Color, settings.Text2ColorN));
-  graphics_draw_text(ctx, SunsetToDraw, FontDate, SunsetRect, GTextOverflowModeFill, PBL_IF_ROUND_ELSE(GTextAlignmentRight,GTextAlignmentLeft), NULL); 
-  
-  //draw location 
+  graphics_draw_text(ctx, SunsetToDraw, FontDate, SunsetRect, GTextOverflowModeFill, PBL_IF_ROUND_ELSE(GTextAlignmentRight,GTextAlignmentLeft), NULL);
+
+  //draw location
   graphics_context_set_text_color(ctx,ColorSelect(settings.Text4Color,settings.Text4ColorN));
-  graphics_draw_text(ctx, LocToDraw, FontCity, CitiRect, GTextOverflowModeTrailingEllipsis, PBL_IF_ROUND_ELSE(GTextAlignmentRight,GTextAlignmentLeft), NULL); 
- 
-  //draw battery and date 
+  graphics_draw_text(ctx, LocToDraw, FontCity, CitiRect, GTextOverflowModeTrailingEllipsis, PBL_IF_ROUND_ELSE(GTextAlignmentRight,GTextAlignmentLeft), NULL);
+
+  //draw battery and date
   graphics_context_set_text_color(ctx, ColorSelect(settings.Text3Color, settings.Text3ColorN));
   graphics_draw_text(ctx, datenow, FontDate, DateRect, GTextOverflowModeTrailingEllipsis, PBL_IF_ROUND_ELSE(GTextAlignmentLeft,GTextAlignmentRight), NULL);
   graphics_draw_text(ctx, battperc, FontDate, BatteryRect, GTextOverflowModeWordWrap, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentRight), NULL);
-   
+
 }
-  
+
 //update sunset, sunrise icon (layer will be hidden when bluetooth disconnected, or sunset or sunrise data is missing)
 static void layer_update_proc_sunset(Layer * layer2, GContext * ctx2){
    // Create Rects
 //  GRect bounds = layer_get_bounds(layer2);
- 
-  GRect SunsetIconRect = 
+
+  GRect SunsetIconRect =
     (PBL_IF_ROUND_ELSE(
       GRect(24,126+10,20,20),
       GRect(0,128+3,20,20)));
- 
+
   char SunsetIconToDraw[20];
   char SunsetIconToShow[20];
   int nowthehouris = s_hours * 100 + s_minutes;
    if (HourSunrise <= nowthehouris && nowthehouris <= HourSunset){
       snprintf(SunsetIconToShow, sizeof(SunsetIconToShow),  "%s", "\U0000F052");
-  } 
+  }
   else{
       snprintf(SunsetIconToShow, sizeof(SunsetIconToShow),  "%s",  "\U0000F051");
   }
-  
- 
+
+
   if (strcmp(citistring, " ") == 0){
-    snprintf(SunsetIconToDraw, sizeof(SunsetIconToDraw),  "%s", " ");    
+    snprintf(SunsetIconToDraw, sizeof(SunsetIconToDraw),  "%s", " ");
   }
   else {
-    snprintf(SunsetIconToDraw, sizeof(SunsetIconToDraw), "%s",SunsetIconToShow); 
+    snprintf(SunsetIconToDraw, sizeof(SunsetIconToDraw), "%s",SunsetIconToShow);
   }
-  
+
  graphics_context_set_text_color(ctx2, ColorSelect(settings.Text2Color, settings.Text2ColorN));
  graphics_draw_text(ctx2, SunsetIconToDraw, FontIcon, SunsetIconRect, GTextOverflowModeFill,GTextAlignmentCenter, NULL);
- 
+
 }
 
 //update bluetooth icon (layer will replace sunset icon when bluetooth disconnected)
 static void layer_update_proc_bt(Layer * layer3, GContext * ctx3){
    // Create Rects
 //  GRect bounds = layer_get_bounds(layer2);
- 
-  GRect BTIconRect = 
+
+  GRect BTIconRect =
     (PBL_IF_ROUND_ELSE(
       GRect(24,126+10,20,20),
       GRect(0,128+3,20,20)));
-  
+
  onreconnection(BTOn, connection_service_peek_pebble_app_connection());
  bluetooth_callback(connection_service_peek_pebble_app_connection());
-  
+
  graphics_context_set_text_color(ctx3, ColorSelect(settings.Text3Color, settings.Text3ColorN));
  graphics_draw_text(ctx3, "z", FontIcon2, BTIconRect, GTextOverflowModeFill,GTextAlignmentCenter, NULL);
-  
+
 }
 
 /////////////////////////////////////////
@@ -676,7 +710,7 @@ static void prv_inbox_received_handler(DictionaryIterator * iter, void * context
   //  strcpy(iconforestring, "");
  //   strcpy(tempforestring, "");
     }
-  
+
   // Background Coloor
   Tuple * bg1_color_t = dict_find(iter, MESSAGE_KEY_Back1Color);
   if (bg1_color_t){
@@ -743,7 +777,14 @@ static void prv_inbox_received_handler(DictionaryIterator * iter, void * context
   if(ntx5_color_t){
     settings.Text5ColorN = GColorFromHEX(ntx5_color_t-> value -> int32);
   }
-  
+  Tuple * tx6_color_t = dict_find(iter,MESSAGE_KEY_Text7Color);
+  if (tx6_color_t){
+    settings.Text7Color = GColorFromHEX(tx6_color_t-> value -> int32);
+    }
+  Tuple * ntx6_color_t = dict_find(iter, MESSAGE_KEY_Text7ColorN);
+  if(ntx6_color_t){
+    settings.Text7ColorN = GColorFromHEX(ntx6_color_t-> value -> int32);
+  }
   //Control of data from weather api
   // Weather Cond
   Tuple * wcond_t = dict_find(iter, MESSAGE_KEY_WeatherCond);
@@ -783,6 +824,14 @@ static void prv_inbox_received_handler(DictionaryIterator * iter, void * context
   if (sunrise_dt){
      snprintf(sunrisestring, sizeof(sunrisestring), "%s", sunrise_dt -> value -> cstring);
   }
+  Tuple * sunset12_dt = dict_find(iter, MESSAGE_KEY_WEATHER_SUNSET_KEY_12H);
+  if (sunset12_dt){
+     snprintf(sunsetstring12, sizeof(sunsetstring12), "%s", sunset12_dt -> value -> cstring);
+  }
+   Tuple * sunrise12_dt = dict_find(iter, MESSAGE_KEY_WEATHER_SUNRISE_KEY_12H);
+  if (sunrise12_dt){
+     snprintf(sunrisestring12, sizeof(sunrisestring12), "%s", sunrise12_dt -> value -> cstring);
+  }
   //Weather and wind icons
   Tuple * iconnow_tuple = dict_find(iter, MESSAGE_KEY_IconNow);
   if (iconnow_tuple){
@@ -804,23 +853,23 @@ static void prv_inbox_received_handler(DictionaryIterator * iter, void * context
     snprintf(windiconavestring,sizeof(windiconavestring),"%s",wind_direction[(int)iconwinddirave_tuple->value->int32]);
     //  snprintf(forecast_result,sizeof(forecast_result),"%s","\U0000F002");
   }
-  
+
   Tuple * wforetemp_t = dict_find(iter, MESSAGE_KEY_TempFore);
   if (wforetemp_t){
     snprintf(temphistring, sizeof(temphistring), "%s", wforetemp_t -> value -> cstring);
   }
-  
+
   Tuple * wforetemplow_t = dict_find(iter, MESSAGE_KEY_TempForeLow);
   if (wforetemplow_t){
     snprintf(templowstring, sizeof(templowstring), "%s", wforetemplow_t -> value -> cstring);
   }
-  
+
   // Location
   Tuple * neigh_t = dict_find(iter, MESSAGE_KEY_NameLocation);
   if (neigh_t){
     snprintf(citistring, sizeof(citistring), "%s", neigh_t -> value -> cstring);
   }
-  
+
   //Control of data gathered for http
   APP_LOG(APP_LOG_LEVEL_DEBUG, "After loop %d temp is %s Cond is %s and City is %s and Wind is %s", s_loop, tempstring, condstring, citistring, windstring);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Sunrise is %d Sunset is %d SunsetDisplay is %s SunriseDisplay is %s", HourSunrise,HourSunset,sunsetstring,sunrisestring);
@@ -845,7 +894,45 @@ static void prv_inbox_received_handler(DictionaryIterator * iter, void * context
       settings.NightTheme = false;
       APP_LOG(APP_LOG_LEVEL_DEBUG, "NTheme off");
     } else settings.NightTheme = true;
-  } 
+  }
+
+  Tuple * health_t = dict_find(iter, MESSAGE_KEY_HealthOff);
+  if (health_t){
+    if (health_t -> value -> int32 == 0){
+      settings.HealthOff = false;
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Health on");
+      get_step_count();
+      get_step_average();
+      display_step_count();
+    } else {
+      settings.HealthOff = true;
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Health off");
+      snprintf(s_current_steps_buffer, sizeof(s_current_steps_buffer),
+       "%s", "");
+    }
+  }
+
+  Tuple * addzero12_t = dict_find(iter, MESSAGE_KEY_AddZero12h);
+  if (addzero12_t){
+    if (addzero12_t -> value -> int32 == 0){
+      settings.AddZero12h = false;
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Add Zero 12h off");
+    } else {
+    settings.AddZero12h = true;
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Add Zero 12h on");
+      }
+    }
+
+  Tuple * remzero24_t = dict_find(iter, MESSAGE_KEY_RemoveZero24h);
+  if (remzero24_t){
+    if (remzero24_t -> value -> int32 == 0){
+      settings.RemoveZero24h = false;
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Remove Zero 24h off");
+    } else {
+    settings.RemoveZero24h = true;
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Remove Zero 24h off");
+      }
+    }
   //Update colors
   layer_mark_dirty(s_canvas_to_be_rotated);
   layer_mark_dirty(s_canvas);
@@ -853,7 +940,7 @@ static void prv_inbox_received_handler(DictionaryIterator * iter, void * context
   layer_mark_dirty(s_canvas_bt_icon);
   layer_mark_dirty(hour_area_layer);
   layer_mark_dirty(minute_area_layer);
-  
+
   // Save the new settings to persistent storage
   prv_save_settings();
 }
@@ -866,30 +953,30 @@ static void window_load(Window * window){
   s_canvas_to_be_rotated = layer_create(bounds4);
   layer_set_update_proc(s_canvas_to_be_rotated, layer_update_proc_pre_rotate);
   layer_add_child(window_layer, s_canvas_to_be_rotated);
-  
+
  /*  effect_layer = layer_create(bounds);
-  
+
  effect_layer_2 = effect_layer_create(PBL_IF_ROUND_ELSE(
       GRect(0,0,180,180),
       GRect(0, 0,144,168 )));
   effect_layer_add_effect(effect_layer_2, effect_rotate_90_degrees, (void *)true);
   layer_add_child(window_get_root_layer(s_window), effect_layer_get_layer(effect_layer_2));*/
- 
-  
+
+
   s_canvas = layer_create(bounds4);
     layer_set_update_proc(s_canvas, layer_update_proc);
     layer_add_child(window_layer, s_canvas);
-      
+
   s_canvas_sunset_icon = layer_create(bounds4);
     layer_set_update_proc (s_canvas_sunset_icon, layer_update_proc_sunset);
     layer_add_child(window_layer, s_canvas_sunset_icon);
-  
+
   s_canvas_bt_icon = layer_create(bounds4);
     layer_set_update_proc (s_canvas_bt_icon, layer_update_proc_bt);
     layer_add_child(window_layer, s_canvas_bt_icon);
-  
+
   s_step_layer = text_layer_create (PBL_IF_ROUND_ELSE(
-    GRect((bounds4.size.w/2)+12, 26, bounds4.size.w, 20),  
+    GRect((bounds4.size.w/2)+12, 26, bounds4.size.w, 20),
     GRect((bounds4.size.w/2), 22, (bounds4.size.w/2), 20)));
     text_layer_set_background_color(s_step_layer, GColorClear);
     text_layer_set_font(s_step_layer,
@@ -897,11 +984,11 @@ static void window_load(Window * window){
             //        fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_text_alignment(s_step_layer, (PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentRight)));
     layer_add_child(window_layer, text_layer_get_layer(s_step_layer));
-  
+
   hour_area_layer = layer_create(bounds4);
     layer_add_child(window_get_root_layer(s_window), hour_area_layer);
     layer_set_update_proc(hour_area_layer, update_hour_area_layer);
-  
+
   minute_area_layer = layer_create(bounds4);
     layer_add_child(window_get_root_layer(s_window), minute_area_layer);
     layer_set_update_proc(minute_area_layer, update_minute_area_layer);
@@ -910,8 +997,8 @@ static void window_load(Window * window){
 
 static void window_unload(Window * window){
   layer_destroy(s_canvas_to_be_rotated);
- // effect_layer_destroy(effect_layer_2);	
-//    effect_layer_destroy(effect_layer_3);	
+ // effect_layer_destroy(effect_layer_2);
+//    effect_layer_destroy(effect_layer_3);
   text_layer_destroy    (s_step_layer);
   layer_destroy(s_canvas);
   layer_destroy(hour_area_layer);
@@ -942,7 +1029,7 @@ void main_window_update(int hours, int minutes, int weekday, int day){
   s_minutes = minutes;
   s_day = day;
   s_weekday = weekday;
-  
+
   layer_mark_dirty(s_canvas);
   layer_mark_dirty(s_canvas_to_be_rotated);
   layer_mark_dirty(s_canvas_sunset_icon);
@@ -981,12 +1068,12 @@ static void tick_handler(struct tm * time_now, TimeUnits changed){
     };
     // Change Color of background
     layer_mark_dirty(s_canvas_to_be_rotated);
-    
+
   }
   // Get weather update every requested minutes and extra request 5 minutes earlier
   if (s_countdown == 0 || s_countdown == 5){
       APP_LOG(APP_LOG_LEVEL_DEBUG, "Update weather at %d", time_now -> tm_min);
-      request_watchjs();    
+      request_watchjs();
   }
   //If GPS was off request weather every 15 minutes
   if (!GPSOn){
@@ -996,13 +1083,13 @@ static void tick_handler(struct tm * time_now, TimeUnits changed){
           request_watchjs();
         }
       }
-    }  
+    }
  }
 
 static void init(){
-  color_loser = GColorRed;
-  color_winner = GColorJaegerGreen;
-  
+  //color_loser = GColorRed;
+  //color_winner = GColorJaegerGreen;
+
   prv_load_settings();
   //// Listen for AppMessages
   ////Starting loop at 0
@@ -1017,7 +1104,7 @@ static void init(){
  // strcpy(iconnowstring, "");
  //  strcpy(iconforestring, "");
  //  strcpy(tempforestring, "");
-  
+
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
   s_hours=t->tm_hour;
@@ -1040,11 +1127,12 @@ static void init(){
   FontSteps = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
   FontWind = fonts_get_system_font(FONT_KEY_GOTHIC_18);
   main_window_push();
-  
+
   // Register with Event Services
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
-  if(step_data_is_available()){
+  if (!settings.HealthOff && step_data_is_available())  {
     health_service_events_subscribe(health_handler,NULL);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "health is on, and steps data is subscribed");
   }
   connection_service_subscribe((ConnectionHandlers){
     .pebble_app_connection_handler = bluetooth_vibe_icon

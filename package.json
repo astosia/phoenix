@@ -45,6 +45,13 @@
             "WeatherWind",
             "bluetoothvibe",
             "WEATHER_SUNSET_KEY",
+            "HealthOff",
+            "AddZero12h",
+            "RemoveZero24h",
+            "WEATHER_SUNSET_KEY_12H",
+            "WEATHER_SUNRISE_KEY_12H",
+            "Lat",
+            "Long",
             "Text3Color",
             "Text3ColorN",
             "IconNow",
@@ -58,6 +65,8 @@
             "WindIconAve",
             "Text5Color",
             "Text5ColorN",
+            "Text7Color",
+            "Text7ColorN",
             "WindUnit",
             "WEATHER_SUNRISE_KEY"
         ],
@@ -103,5 +112,5 @@
             "watchface": true
         }
     },
-    "version": "2.0.0"
+    "version": "2.5.0"
 }
