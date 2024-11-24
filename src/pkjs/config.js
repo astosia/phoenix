@@ -203,10 +203,6 @@ module.exports = [
               {
                 "label": "OpenWeatherMap",
                 "value": "owm"
-              },
-              {
-                "label": "DarkSky",
-                "value": "ds"
               }
             ]
           },
@@ -234,29 +230,9 @@ module.exports = [
             "messageKey": "APIKEY_User",
             "defaultValue": "",
             "label": "API Key",
-            "description": "If left blank, the watch will attempt to request an api from your pmkey.xyz.  If you don't have an api key, weather data will not be displayed. Note that DarkSky will show Latitude, Longitude (to 2 decimal places) instead of location name. Register for a free personal API key at <a href=https://darksky.net/dev/register/>DarkSky here</a>, or <a href =https://home.openweathermap.org/users/sign_up/>OpenWeatherMap here</a>",
+            "description": "If you don't have an api key, weather data will not be displayed. Register for a free personal API key at <a href =https://home.openweathermap.org/users/sign_up/>OpenWeatherMap here</a>",
             "attributes": {
               "placeholder": "Paste your API Key here"
-            }
-          },
-          {
-            "type": "input",
-            "messageKey": "EmailPMKEY",
-            "defaultValue": "",
-            "label": "pmkey.xyz User",
-            "description": "pmkey.xyz is a free service for Pebble users that allows you to safely store all your API keys in a single place. Check <a href=https://www.pmkey.xyz/>pmkey.xyz</a> ",
-            "attributes": {
-              "placeholder": "eg: jane.smith@pmkey.xyz",
-              "type": "email"
-            }
-          },
-          {
-            "type": "input",
-            "messageKey": "PINPMKEY",
-            "defaultValue": "",
-            "label": "pmkey.xyz PIN",
-            "attributes": {
-              "placeholder": "eg: 12345"
             }
           },
           {
@@ -276,7 +252,7 @@ module.exports = [
           },
           {
           "type": "heading",
-          "defaultValue": "version v2.5",
+          "defaultValue": "version v3.0",
           "size":6
           },
           {
